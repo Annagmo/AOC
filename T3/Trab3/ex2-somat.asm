@@ -49,7 +49,6 @@ add $t0, $t0, 1 # i++;
 
 j loop #chama o loop dnv, uma hora bate no n == i.
 
-
  
 fim:
 #quando i == n ele faz o último fator da soma, que não está incluso no loop
