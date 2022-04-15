@@ -20,7 +20,7 @@ main:
 la $s0, 0x10010000 #fazendo o s0 ser o 10010000??
 li $t1,0    # (n + i/2) = 0
 li $s0,0    #somatório = 0
-add $t0, $zero , 0 # t0 = 1, fazendo o i
+add $t0, $zero , 0 # t0 = 0, fazendo o i
 
 li $v0,4    #carregando o serviço read para ler um int
 la $a0,str #Para imprimir a string
@@ -36,7 +36,7 @@ j loop #chama o loop
 
 
 loop:
-beq $v0,$t0,fim  # Se n == i então encerra. Agora que eu entendi, BRANCH ON EQUAL, ele vai pro ramo LOOP quando é EQUAL.
+beq $v0,$t0,fim  # Se n == i então encerra. Agora que eu entendi, BRANCH ON EQUAL, ele vai pro ramo/Branch Fim quando é EQUAL.
 
 # vamos fazer o (n + i/2):
 move $t1, $t0    # O i tá armazenado no t0, passamos pro t1: t1 = i
@@ -48,6 +48,7 @@ add $s0,$s0,$t1  #sum = sum + (n + i/2)
 add $t0, $t0, 1 # i++;
 
 j loop #chama o loop dnv, uma hora bate no n == i.
+
 
  
 fim:
