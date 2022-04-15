@@ -43,7 +43,7 @@ move $t1, $t0    # O i tá armazenado no t0, passamos pro t1: t1 = i
 div $t1, $t1, 2 # t1 = t1/2, portanto t1 = i/2
 add $t1, $t1 , $v0 # t1 = t1 + n   ou seja  t1 = i/2 + n, que é o fator que queríamos.
 
-add $s0,$s0,$t1  #sum = sum + (n + i/2)
+add $s0,$s0,$t1  #sum += sum + (n + i/2);
 
 add $t0, $t0, 1 # i++;
 
