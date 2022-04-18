@@ -69,7 +69,7 @@ li  $v0,4       #print string
 la  $a0,n
 syscall
 
-li $v0,1        #print valor somatório
+li $v0,1        #print valor produtório
 move $a0,$s0
 syscall
 
