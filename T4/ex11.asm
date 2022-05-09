@@ -20,8 +20,9 @@
 
 main:
     lui $v1, 0x1001         #endereço de memória 0x10010000 para o registrador $v1.
-    la      $t1, v1
+    la      $t1, v1         #carrega $t1 com os dois vetores v1 e v2.
     li      $v0, 0
+    li      $t0, 0          #contador
 loop:
     bge     $t0, 10, fim    #quando o contador chega no final dos dois vetores, vai pro fim
 
@@ -32,8 +33,8 @@ loop:
     move    $a0, $t2
     syscall
  
-    li      $a0, 32         # syscall para imprimir os espaços
-    li      $v0, 11  
+    li      $a0, 32         #para imprimir o espaço
+    li      $v0, 11         #imprime caractere 
     syscall
 
     addi    $t0, $t0, 1     #aumenta o contador
