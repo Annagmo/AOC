@@ -34,12 +34,12 @@ loop:
     syscall
  
     li      $a0, 32         #para imprimir o espaço
-    li      $v0, 11         #imprime caractere 
+    li      $v0, 11         #para imprimir caractere 
     syscall
 
     addi    $t0, $t0, 1     #aumenta o contador
     j      loop
 
 fim:
-    li      $v0, 10
+    li      $v0, 10 #para printar os 10 nrs
     syscall
