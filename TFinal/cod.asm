@@ -1,7 +1,7 @@
 .data
 	bemVindo: .asciiz "\t\t\t\t***INSTRUCÕES***\n"  
-	instrucoes: .asciiz "   Você deve completar o tabuleiro em todo lugar que haja o número 0.\n   Será perguntado qual número você quer por em seu lugar, o índice da linha e o da coluna.\n\t\t\t\t **Boa sorte**\n"
-	easy: .asciiz "1.Easy\n"
+	instrucoes: .asciiz "           Você deve completar o tabuleiro em todo lugar que haja o número 0.\n   Será perguntado qual número você quer por em seu lugar, o índice da linha e o da coluna.\n             Lembre-se que os índices das linhas e colunas começam em 0.\n\t\t\t\t **Boa sorte**\n"
+	easy: .asciiz "Digite 1 para jogar:\n"
 	new_row: .asciiz "|\n"
 	sep_tab_horiz: .asciiz " ------------------------------------\n"
 	sep_tab_vert: .asciiz " | "
@@ -11,15 +11,15 @@
 	linha: .asciiz "índice da linha:\n"
 	col: .asciiz "índice da coluna:\n"
 	level1: .asciiz "Level 1\n"
-easy1:      .byte     0, 0, 8, 3, 0, 9, 1, 0, 0
-            .byte     9, 0, 0, 0, 6, 0, 0, 0, 4
-            .byte     0, 0, 7, 5, 0, 4, 8, 0, 0
-            .byte     0, 3, 6, 0, 0, 0, 5, 4, 0
-            .byte     0, 0, 1, 0, 0, 0, 6, 0, 0
-            .byte     0, 4, 2, 0, 0, 0, 9, 7, 0
-            .byte     0, 0, 5, 9, 0, 7, 3, 0, 0
-            .byte     6, 0, 0, 0, 1, 0, 0, 0, 8
-            .byte     0, 0, 4, 6, 0, 8, 2, 0, 0
+jogo:       .byte     0, 0, 5, 0, 1, 9, 7, 0, 0    # 3  2  5  4  1  9  7  6  8
+            .byte     0, 0, 6, 3, 0, 0, 0, 0, 0    # 1  7  6  3  2  8  5  4  9
+            .byte     0, 9, 0, 0, 0, 6, 0, 2, 3    # 8  9  4  7  5  6  1  2  3
+            .byte     0, 3, 0, 0, 7, 4, 0, 8, 0    # 9  1  3  5  7  4  2  8  6
+            .byte     2, 0, 0, 6, 0, 0, 0, 0, 1    # 2  5  7  6  8  3  9  4  1
+            .byte     4, 0, 0, 0, 0, 1, 0, 5, 7    # 4  6  8  2  9  1  3  5  7 
+            .byte     0, 0, 1, 0, 3, 5, 0, 0, 0    # 6  4  1  9  3  5  8  7  2
+            .byte     7, 0, 0, 8, 0, 0, 6, 0, 5    # 7  3  9  8  4  2  6  1  5 
+            .byte     0, 8, 0, 0, 0, 0, 9, 0, 4    # 5  8  2  1  6  7  9  3  4
             
 .text
 	li $v0,4 #Load print_string syscall number in $v0
@@ -43,9 +43,9 @@ easy1:      .byte     0, 0, 8, 3, 0, 9, 1, 0, 0
 	li $v0,4 #Load print_string syscall number in $v0
 	la $a0,level1 #Load address of string to print
 	syscall #Execute the syscall
-	la $a0,easy1 #Load address of a 2D array
+	la $a0,jogo #Load address of a 2D array
 	jal print_board #jump and link to funtion "print_baord"
-	la $a0,easy1 #Load address of a 2D array
+	la $a0,jogo #Load address of a 2D array
 	jal guess #jump and link to function "guess"
 	
 	
@@ -89,12 +89,19 @@ easy1:      .byte     0, 0, 8, 3, 0, 9, 1, 0, 0
 	addi $s1, $s1, 1 # Increment the row counter
 	# Print the next row
 	blt $s1,9, print_cell # Restart the loop until the table is cmplete
+	
 	# Destroy the stack frame
 	lw $s0, 0($sp) # Restore the $s0 register
 	lw $s1, 4($sp) # Restore the $s1 register
 	lw $s2, 8($sp) # Restore the $s2 register
 	lw $ra, 12($sp) # Restore the return address
 	addi $sp, $sp, 16 # Clean up the stack
+	
+	# imprime fundo do tabuleiro pq se não ficava estranho                //Anna
+	la $a0, sep_tab_horiz # Load the address of the string to print
+	li $v0, 4 # Load print_string syscall number in $v0
+	syscall # Execute the syscall
+	
 	jr $ra # Return
 	guess:
 	# Set up the stack frame
@@ -104,12 +111,6 @@ easy1:      .byte     0, 0, 8, 3, 0, 9, 1, 0, 0
 	sw $s1, 4($sp) # Save the $s1 register
 	sw $s0, 0($sp) # Save the $s0 register
 	# Initialize registers
-	
-	# imprime fundo do tabuleiro pq se não ficava estranho                //Anna
-	la $a0, sep_tab_horiz # Load the address of the string to print
-	li $v0, 4 # Load print_string syscall number in $v0
-	syscall # Execute the syscall
-	
 	move $s0,$a0 # $s0 points to the cell
 	li $v0,4 #load print_string syscall number in $v0
 	la $a0,nr #load sring address to print
