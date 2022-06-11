@@ -1,7 +1,7 @@
 .data
 	bemVindo: .asciiz "\t\t\t\t***INSTRUCÕES***\n"  
 	instrucoes: .asciiz "           Você deve completar o tabuleiro em todo lugar que haja o número 0.\n   Será perguntado qual número você quer por em seu lugar, o índice da linha e o da coluna.\n             Lembre-se que os índices das linhas e colunas começam em 0.\n\t\t\t\t **Boa sorte**\n"
-	easy: .asciiz "Digite 1 para jogar:\n"
+	iniciaJogo: .asciiz "Digite 1 para jogar:\n"
 	new_row: .asciiz "|\n"
 	sep_tab_horiz: .asciiz " ------------------------------------\n"
 	sep_tab_vert: .asciiz " | "
@@ -23,22 +23,22 @@ jogo:       .byte     0, 0, 5, 0, 1, 9, 7, 0, 0    # 3  2  5  4  1  9  7  6  8
             
 .text
 	li $v0,4 #Load print_string syscall number in $v0
-	la $a0,bemVindo #Load address of string to print
-	syscall #Execute the syscall
+	la $a0,bemVindo #carrega e imprime a mensagem de bem-vindo
+	syscall 
 	li $v0,4 #Load print_string syscall number in $v0
-	la $a0,instrucoes #Load address of string to print
-	syscall #Execute the syscall
+	la $a0,instrucoes #carrega e imprime as instruções
+	syscall 
 	li $v0,4 #Load print_string syscall number in $v0
-	la $a0,easy #Load address of string to print
-	syscall #Execute the syscal
+	la $a0,iniciaJogo #carrega e imprime o :  "Digite 1 para jogar:\n"
+	syscall
 	
 	li $v0,5#load read_int syscall number in $v0
 	syscall #Execute the syscall
-	beq $v0,1,EASY #choice==1 ==> easy
+	beq $v0,1,JOGAR #choice==1 ==> iniciaJogo
 
 	j ENDGAME
 	
-	EASY:
+	JOGAR:
 	#level1:
 	li $v0,4 #Load print_string syscall number in $v0
 	la $a0,level1 #Load address of string to print
