@@ -3,13 +3,13 @@
 	instrucoes: .asciiz "   Você deve completar o tabuleiro em todo lugar que haja o número 0.\n   Será perguntado qual número você quer por em seu lugar, o índice da linha e o da coluna.\n\t\t\t\t **Boa sorte**\n"
 	easy: .asciiz "1.Easy\n"
 	new_row: .asciiz "|\n"
-	sep_tab_horiz: .asciiz "+---+---+---+---+---+---+---+---+---+\n"
+	sep_tab_horiz: .asciiz " ------------------------------------\n"
 	sep_tab_vert: .asciiz " | "
 	error_msg: .asciiz "Você errou!  \\(° - ° )/ \n"
 	corr_msg: .asciiz "Você acertou!  \\(°V°)/ \n"
-	e: .asciiz "Qual número você deseja adicionar?\n"
-	r: .asciiz "índice da linha:\n"
-	c: .asciiz "índice da coluna:\n"
+	nr: .asciiz "Qual número você deseja adicionar?\n"
+	linha: .asciiz "índice da linha:\n"
+	col: .asciiz "índice da coluna:\n"
 	level1: .asciiz "Level 1\n"
 easy1:      .byte     0, 0, 8, 3, 0, 9, 1, 0, 0
             .byte     9, 0, 0, 0, 6, 0, 0, 0, 4
@@ -104,21 +104,27 @@ easy1:      .byte     0, 0, 8, 3, 0, 9, 1, 0, 0
 	sw $s1, 4($sp) # Save the $s1 register
 	sw $s0, 0($sp) # Save the $s0 register
 	# Initialize registers
+	
+	# imprime fundo do tabuleiro pq se não ficava estranho                //Anna
+	la $a0, sep_tab_horiz # Load the address of the string to print
+	li $v0, 4 # Load print_string syscall number in $v0
+	syscall # Execute the syscall
+	
 	move $s0,$a0 # $s0 points to the cell
 	li $v0,4 #load print_string syscall number in $v0
-	la $a0,e #load sring address to print
+	la $a0,nr #load sring address to print
 	syscall #Execute the syscall
 	li $v0,5 #load read_int syscall address in $v0
 	syscall #Execute the syscall
 	move $t0,$v0 #number entered
 	li $v0,4 #load print_string syscall number in $v0
-	la $a0,r #load string address to print
+	la $a0,linha #load string address to print
 	syscall #execute the syscall
 	li $v0,5 #load read_int syscall address in $v0
 	syscall #Execute the syscall
 	move $t1,$v0 #row index
 	li $v0,4 #load print_string syscall number in $v0
-	la $a0,c #load string address to print
+	la $a0,col #load string address to print
 	syscall #execute the syscall
 	li $v0,5 #load read_int syscall number in $v0
 	syscall #execute the syscall
