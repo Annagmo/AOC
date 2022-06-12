@@ -1,7 +1,5 @@
 .data
-
-bemVindo: 
- 	 	 	.asciiz "\t\t\t\t***INSTRUCÕES***\n"  
+			bemVindo: .asciiz "\t\t\t\t***INSTRUCÕES***\n"  
 	        	instrucoes: .asciiz "           Você deve completar o tabuleiro em todo lugar que haja o número 0.\n   Será perguntado qual número você quer por em seu lugar, o índice da linha e o da coluna.\n             Lembre-se que os índices das linhas e colunas começam em 0.\n\t\t\t\t **Boa sorte**\n"
 	        	iniciaJogo: .asciiz "Digite 1 para jogar:\n"
 	        	new_row: .asciiz "|\n"
