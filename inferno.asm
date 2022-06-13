@@ -39,190 +39,157 @@ jogo:
         	 	syscall 
 			
         	 	beq $v0,1,JOGAR #se ele clica 1 vai para o ramo JOGAR
-			beq $v0,0,FIMDEJOGO #se ele clica 0 vai para o ramo FIMDEJOGO e encerra o programa
-			
+
         	 	j FIMDEJOGO
 	
 JOGAR:
-	         	la $a0,jogo #carrega o tebuleiro
-	         	jal atualiza_pilha #salva as nossas vaiáveis na pilha
-	         	la $a0,jogo #carrega o tabuleiro novamente em uma lista 2d para saber a posição na lista que o user vai botar o nr
-	         	jal chute #vai para o ramo chute
+	         	la $a0,jogo #Load address of a 2D array
+	         	jal tabuleiro #jump and link to funtion "print_baord"
+	         	la $a0,jogo #Load address of a 2D array
+	         	jal chute #jump and link to function "guess"
 	
 	         	j FIMDEJOGO
 	
 FIMDEJOGO:
-         		li $v0,10 #10 é o código de saída do SPIM
-         		syscall
+         		li $v0,10 #Syscell number in $v0 for termination
+         		syscall #Execute the syscall
       
-atualiza_pilha:	
-             	 	# vamos criar uma pilha
-			
-         		sub $sp, $sp, 16 
-			
-			# sp vai ser o nosso registrador pilha, e nele nós valos alocar 4 coisas:
-         		# a gente preenche/atualiza a pilha do último elemento pro primeiro lá na base da pilha.
-			
+tabuleiro:	
+             	 	# Set up the stack frame
+         		sub $sp, $sp, 16 # Make room on the stack to save registers
 	         	sw $ra, 12($sp) # Save the return address
-			
-			# nos últimos 4 bytes da pilha nós armazenamos o endereço de retorno. 
-	        	# como a jal "atualiza_pilha" vai sobrescrever o nosso endereço de retorno da pilha $ra <- PC+4 nós precisamos 
-	        	# restaurar o endereço de retorno que tínhamos antes. E nós vamos restaurar este endereço no "jr $ra" só depois de 
-	        	# imprimir o tabuleiro
-			
 	         	sw $s2, 8($sp) # Save the $s2 register
          		sw $s1, 4($sp) # Save the $s1 register
          		sw $s0, 0($sp) # Save the $s0 register
          	
-			# inicializa os registradores
-         		move $s0,$a0 # em "la $a0,jogo" nós colocamos todas as nossas linhas do tabuleiro em $a0, e agora passamos pra $s0
-         		#que vai guardando na pilha o nosso tabuleiro atualizado com a jogada do usuário.
-         		move $s1, $zero # $s1 marca a linha que nós estamos no tabuleiro
-         		move $s2, $zero # $s1 marca a coluna que nós estamos no tabuleiro
+             	 	# Initialize registers
+         		move $s0,$a0 # $s0 points to the cell to print
+         		move $s1, $zero # $s1 keeps track of the current row
+         		move $s2, $zero # $s2 keeps track of the current column
 	         	
-            	 	la $a0, marcador_fundo_topo # imprime o topo do tabuleiro " ------------------------------------\n"
-	         	li $v0, 4
-	         	syscall
+            	 	# Print top border
+	         	la $a0, marcador_fundo_topo # Load the address of the string to print
+	         	li $v0, 4 
+	         	syscall 
   
-imprime_linha:	         	
-			#eu tinha falado que nós só vamos restaurar o endereço de retorno da pilha só depois de imprimir o tabuleiro
-			# neste ramo nós vamos imprimer linha por linha, nr por nr e depois de tudo, vamos restaurar o endereço de retorno
-			#com o "jr $ra"	
-			
-			# antes de cada linha e depois de cada linha vamos imprimir um | para ficar visual.
-	         	la $a0, separador_linha 
-	         	li $v0, 4 #imprime o |
-	         	syscall
+print_cell:	         	
+            	 	 # Print the cell's vertical border
+	         	la $a0, separador_linha # Load the address of the string to print
+	         	li $v0, 4 # Load print_string syscall number in $v0
+	         	syscall # Execute the syscall
 	         	
-			#vamos imprimir nr por nr em cada uma das 9 linhas/ células do nosso tabuleiro
-	         	lb $a0, ($s0) #lembra que nós guardamos todas as células/linhas na pilha? agora imprime elas
-	         	li $v0, 1 #imprime o primeiro nr da primeira linha
-         		syscall
-			
-			addi $s0, $s0, 1 #aponta para a póxima linha/célula
-	         	addi $s2, $s2, 1 # aumenta o registrador que está contando as colunas
-	         	blt $s2, 9, imprime_linha  # vai iterando no mesmo ramo até acabarem todas as 4 colunas
-	         	#já imprimiu 1 nr coluna 0⁰, proxima iteração: imprime 1 nr 1⁰ coluna...E assim vai 1 nr 2⁰ coluna, 1 nr 3⁰ coluna.
-	         	#parabéns, você imprimiu uma linha.
-	         	
-            	 	#imprime um \n pra próxioma linha, assim como um | pra fechar aquela linha
-	         	la $a0, nv_linha #imprime o | \n
-	         	li $v0, 4
-	         	syscall 
-			
-	         	move $s2, $zero #resetamos o contador de colunas
-	         	addi $s1, $s1, 1 # aumentamos no contador de linhas
-         		
-             	 	# vamos imprimir a próxima linha
-	         	blt $s1,9, imprime_linha # não continua até que tenha impresso todas as 4 linhas
-			
-			# retorna a pilha para o que ela era no início, pq vamos precisar imprimir ela toda vez que o usuário for chutar
-	         	lw $s0, 0($sp) # retorna o registrador que armazena a linha que estávamos imprimindo no momento para o que era
-	         	lw $s1, 4($sp) #  retorna o contador de linhas para o que era
-	         	lw $s2, 8($sp) #  retorna o contador de colunas para o que era
-	         	lw $ra, 12($sp) #  retorna o endereço de retorno da pilha
-         		addi $sp, $sp, 16 # limpa a pilha
-	
-	         	# imprime fundo do tabuleiro 
-	         	la $a0, marcador_fundo_topo 
-	         	li $v0, 4 # " ------------------------------------\n"
-	         	syscall 
-	
-	         	jr $ra # Retorna o ra para o endereço de retorno que tinhamos antes, uma vez que por causa 
-	         	#do "jal atualiza_pilha" tivemos "ra<- PC+4 "
-            
-chute:
-	         	#nós tínhamos uma pilha para a primeira impressão do tabuleiro, agora vamos refazer essa pilha para
-			#cada um dos chutes do usuário. Então nunca vamos ter um "jr $ra". Uma vez que, nós já vamos colocar
-			# a nova pilha no endereço de retorno da antiga, e, vamos sempre atualizar essa pilha.
-			
-	         	# vamos refazer a pilha
-	         	subi $sp, $sp, 16 # guardar 4 registradores com valores nela
-	         	sw $ra, 12($sp) # salvar o endereço de retorno
-	         	sw $s2, 8($sp) # marca coluna
-	         	sw $s1, 4($sp) # marca linha
-         		sw $s0, 0($sp) # linha que vamos imprimir
-         	
-           	 	# inicializa os registradores
-	         	move $s0,$a0 # movemos a linha que vamos imprimir para o a0 para não afetar o armazenamento original s0.
-	         	
-	         	li $v0,4 # pergunta qual vai ser o chute:
-         		la $a0,nr #"Qual número você deseja adicionar?\n"
+             	 	# Print the number in the current cell
+	         	lb $a0, ($s0) # Load the address of the number to print
+	         	li $v0, 1 # Load print_int syscall number in $v0
          		syscall 
 			
-	         	li $v0,5 #lê o nr digitado
-	         	syscall
-	         	move $t0,$v0 # movemos para guardar num registrador
-			
-	         	li $v0,4 # pergunta: "índice da linha:\n"
-	         	la $a0,linha 
+         		addi $s0, $s0, 1 # Point to the next board cell
+	         	addi $s2, $s2, 1 # Increment the column counter
+	         	blt $s2, 9, print_cell # Iterate the loop until the row is completed
+	         	
+            	 	# Row completed: print the rightmost border and a new separator
+	         	la $a0, nv_linha # Load the address of the string to print
+	         	li $v0, 4 # Load print_string syscall number in $v0
 	         	syscall 
 			
-	         	li $v0,5 #lê o índice da linha digitado
-	         	syscall 	
-         		move $t1,$v0 #movemos para guardar o índice da linha num registrador
+	         	move $s2, $zero # Reset the column counter
+	         	addi $s1, $s1, 1 # Increment the row counter
+         		
+             	 	# Print the next row
+	         	blt $s1,9, print_cell # Restart the loop until the table is cmplete
+	
+	         	# Destroy the stack frame
+	         	lw $s0, 0($sp) # Restore the $s0 register
+	         	lw $s1, 4($sp) # Restore the $s1 register
+	         	lw $s2, 8($sp) # Restore the $s2 register
+	         	lw $ra, 12($sp) # Restore the return address
+         		addi $sp, $sp, 16 # Clean up the stack
+	
+	         	# imprime fundo do tabuleiro pq se não ficava estranho                //Anna
+	         	la $a0, marcador_fundo_topo # Load the address of the string to print
+	         	li $v0, 4 # Load print_string syscall number in $v0
+	         	syscall 
+	
+	         	jr $ra 
+            
+chute:
+	         	# Set up the stack frame
+	         	subi $sp, $sp, 16 # Make room on the stack to save registers
+	         	sw $ra, 12($sp) # Save the return address
+	         	sw $s2, 8($sp) # Save the $s2 register
+	         	sw $s1, 4($sp) # Save the $s1 register
+         		sw $s0, 0($sp) # Save the $s0 register
+         	
+           	 	# Initialize registers
+	         	move $s0,$a0 # $s0 points to the cell
+	         	li $v0,4 #load print_string syscall number in $v0
+         		la $a0,nr #load sring address to print
+         		syscall
 			
-	         	li $v0,4 #pergunta: "índice da coluna:\n"
-	         	la $a0,col 
+	         	li $v0,5 #load read_int syscall address in $v0
 	         	syscall
 			
-	         	li $v0,5 # lê o índice da coluna
-	         	syscall 			
-	         	move $t2,$v0 # movemos para guardar o índice da coluna num registrador
+	         	move $t0,$v0 #number entered
+	         	li $v0,4 #load print_string syscall number in $v0
+	         	la $a0,linha #load string address to print
+	         	syscall
 			
+	         	li $v0,5 #load read_int syscall address in $v0
+	         	syscall
+			
+         		move $t1,$v0 #row index
+	         	li $v0,4 #load print_string syscall number in $v0
+	         	la $a0,col #load string address to print
+	         	syscall
+			
+	         	li $v0,5 #load read_int syscall number in $v0
+	         	syscall
+			
+	         	move $t2,$v0 #column index
 	         	move $a0,$s0 #board address
 	         	move $a1,$t0 #number entered
 	         	move $a2,$t1 #row index
 	         	move $a3,$t2 #column index
 	         	move $t5,$s0
+	         	jal check
+	         	beqz $v0,correct
+	         	li $v0,4 #Load print_string syscall number in $v0
+	         	la $a0,errou #Load string address to print
+         		syscall 
 			
-			#Checagem do chute:
-	         	jal checagem_chute
-			
-			# se o chute for correto:
-	         	beqz $v0,chute_correto
-	         	li $v0,4
-			
-			#se for errado
-	         	la $a0,errou #só iprime já que não vai mudar o tabuleiro.
-         		syscall
-			
-         		move $a0,$s0 #move o endereço de retorno da pilha para o a0 para fazermos um novo chute 
-  
-               		jal chute # novo chute
+         		move $a0,$s0 #board address
+         		jal chute #guess again...
 
-chute_correto:
-	         	li $v0,4 #imprime a mensagem de acerto:
-	         	la $a0,acertou # "Você acertou!  \\(°V°)/ \n"
-	         	syscall
+correct:
+	         	li $v0,4 #Load print_string syscall number in v0
+	         	la $a0,acertou #Load string address to print
+	         	syscall 
 			
 	         	move $a0,$s0 #board address
 	         	jal FULL
 	         	beqz $v0,notfull
 	         	
-	         	# exclui a pilha, para quando formos fazer uma nova pilha no ramo chute, 
-	         	# quando for ser guardada a linha que objeteve um acerto, ela já vai ser guardada atualizada
-	         	lw $s0, 0($sp) #restaura tudo para o que era
-	         	lw $s1, 4($sp) 
-	         	lw $s2, 8($sp) 
-	         	lw $ra, 12($sp)
-         		addi $sp, $sp, 16 # apaga a pilha
-	         	jr $ra # volta para o endereço de retorno que tava no início para criar uma pilha nova no mesmo endereço
+	         	# Destroy the stack frame
+	         	lw $s0, 0($sp) # Restore the $s0 register
+	         	lw $s1, 4($sp) # Restore the $s1 register
+	         	lw $s2, 8($sp) # Restore the $s2 register
+	         	lw $ra, 12($sp) # Restore the return address
+         		addi $sp, $sp, 16 # Clean up the stack
+	         	jr $ra # Return
 
 notfull:
 	         	move $a0,$s0 #board address
 	         	jal chute
 
-checagem_chute:
+check:
 	         	subi $sp,$sp,4 #make room in the stack
-	         	sw $ra,($sp) # salvar o endereço de retorno do ra
-	         	move $s0,$a0 ## salvar o endereço do tabuleiro atualizado com o chute
-	         	move $t9,$a1 #salva o chute
+	         	sw $ra,($sp) #Save $ra register
+	         	move $s0,$a0 #board address
+	         	move $t9,$a1 #number entered
          	
-	         	# checagem de linha por linha pra ver se o chute entra
-	         	li $t0,9 #passar pelas 4 linhas
+	         	#Row check
+	         	li $t0,9 #Set counter
 	         	mul $t1,$a2,$t0 #Offset of the first cell in the row
-			
 	
 check_row:
 	         	add $s1,$s0,$t1
@@ -271,7 +238,7 @@ end_box_row:
     	     	 	add $s1,$s0,$t7
     	     	 	sb $t9,($s1) #store byte
     	     	 	move $a0,$s0
-    	     	 	jal imprime_linha
+    	     	 	jal tabuleiro
     	     	 	move $v0,$zero #Return code is 0 (success)
     	     	 	j check_ret #Jump to the return instrucoes
   
@@ -282,7 +249,7 @@ check_ret_fail:
     	     	 	add $s1,$s0,$t7
     	     	 	sb $t9,($s1) #store byte
     	     	 	move $a0,$s0
-    	     	 	jal imprime_linha
+    	     	 	jal tabuleiro
     	     	 	li $v0,1 #Return code is 1 (failure)
  
 check_ret:
