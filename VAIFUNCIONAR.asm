@@ -5,10 +5,12 @@
 	        	nv_linha: .asciiz "|\n"
 	        	marcador_fundo_topo: .asciiz " ------------------------------------\n"
 	        	separador_linha: .asciiz " | "
-	        	errou: .asciiz "Você errou!  \\(° - ° )/ \n"
-	        	acertou: .asciiz "Você acertou!  \\(°V°)/ \n"
+	        	errou: .asciiz "\nVocê errou!  \\(° - ° )/ \n"
+	        	acertou: .asciiz "\nVocê acertou!  \\(°V°)/ \n"
 	        	nr: .asciiz "Qual número você deseja adicionar?\n"
 	        	linha: .asciiz "índice da linha:\n"
+	        	final: .asciiz "\nParabéns, você acertou todos os números!!!"
+	        	sudoku: .asciiz "\n1, 2, 3, 4\n3, 4, 1, 2\n4, 3, 2, 1\n2, 1, 4, 3"	
   
 jogo:       
         	 	.byte     0, 2, 3, 4   
@@ -194,7 +196,7 @@ linha2:
 	
 #elem 33	
 linha3:
-			beq $a1, $t3, chute_correto
+			beq $a1, $t3, chute_final
 	
 			j chute_errado  
 	
@@ -212,4 +214,17 @@ chute_errado:
 	         	la $a0,errou
 	         	syscall
 	         	
-	         	jal chute	   
+	         	jal chute	 
+	         
+chute_final:
+			li $v0,4 #imprime a mensagem de acerto:
+	         	la $a0,acertou # "Você acertou!  \\(°V°)/ \n"
+	         	syscall
+	         	
+	         	li $v0,4 #imprime a mensagem de acerto:
+	         	la $a0,final # concluido
+	         	syscall
+	         	
+	         	li $v0,4 #imprime a mensagem de acerto:
+	         	la $a0,sudoku # concluido
+	         	syscall
