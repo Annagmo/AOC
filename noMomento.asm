@@ -172,16 +172,15 @@ chute:
 	         	move $t5,$s0 # move o endereço de retorno da pilha que tá armazenando o tabuleiro para um registrador manipulável
 	         	# que não vai alterar o original
 	         	
-	         	li $t0,0
 	         	li $t1,1
 	         	li $t2,2
 	         	li $t3,3
 	         	li $t4,4
 	         	#Checagem do chute:
-	         	beq 0, $a2, linha0
-	         	beq 1, $a2, linha1
-	         	beq 2, $a2, linha2
-	         	beq 3, $a2, linha3
+	         	beq $t0, $a2, linha0
+	         	beq $t1, $a2, linha1
+	         	beq $t2, $a2, linha2
+	         	beq $t3, $a2, linha3
 	         	
 	         	# se o chute for correto:
 	         	beqz $v0,chute_correto #vai para o ramo de chute correto, pq a gente tem que mudar o tabuleiro
@@ -195,27 +194,19 @@ chute:
                		jal chute # novo chute
 #elem 00           
 linha0:
-	beq $t0, $a3, coluna0
-coluna0:
-	beq $a1, 1, chute_correto   # 1, 4, 2, 3 é a Diagonal principal
+	beq $a1, $t1, chute_correto   # 1, 4, 2, 3 é a Diagonal principal
 	
 #elem 11	
 linha1:
-	beq $t1, $a3, coluna1
-coluna1: 
-	beq $a1, 4, chute_correto
+	beq $a1, $t4, chute_correto
 	
 #elem 22	
 linha2:
-	beq 2, $a3, coluna2
-coluna2:
-	beq $a1, 2, chute_correto
+	beq $a1, $t2, chute_correto
 	
 #elem 33	
 linha3:
-        beq 3, $a3, coluna3 
-coluna3:
-	beq $a1, 3, chute_correto  
+	beq $a1, $t3, chute_correto  
 	
 
 	       		       			       		       		
