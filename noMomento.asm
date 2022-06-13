@@ -1,7 +1,6 @@
 .data
 
-bemVindo: 
- 	 	 	.asciiz "\t\t\t\t***INSTRUCÕES***\n"  
+                        bemVindo: .asciiz "\t\t\t\t***INSTRUCÕES***\n"  
 	        	instrucoes: .asciiz "           Você deve completar o tabuleiro em todo lugar que haja o número 0.\n   Será perguntado qual número você quer por em seu lugar, o índice da linha e o da coluna.\n             Lembre-se que os índices das linhas e colunas começam em 0.\n\t\t\t\t **Boa sorte**\n"
 	        	iniciaJogo: .asciiz "Digite 1 para jogar ou 0 para sair:\n"
 	        	nv_linha: .asciiz "|\n"
@@ -182,31 +181,30 @@ chute:
 	         	beq $t2, $a2, linha2
 	         	beq $t3, $a2, linha3
 	         	
-	         	# se o chute for correto:
-	         	beqz $v0,chute_correto #vai para o ramo de chute correto, pq a gente tem que mudar o tabuleiro
-	         	li $v0,4
-	         	#se for errado
-	         	la $a0,errou #só iprime já que não vai mudar o tabuleiro.
-         		syscall
-			
-         		move $a0,$s0 #move o endereço de retorno da pilha para o a0 para fazermos um novo chute 
-  
-               		jal chute # novo chute
+	   
 #elem 00           
 linha0:
 	beq $a1, $t1, chute_correto   # 1, 4, 2, 3 é a Diagonal principal
+	
+	j chute_errado
 	
 #elem 11	
 linha1:
 	beq $a1, $t4, chute_correto
 	
+	j chute_errado
+	
 #elem 22	
 linha2:
 	beq $a1, $t2, chute_correto
 	
+	j chute_errado 
+	
 #elem 33	
 linha3:
-	beq $a1, $t3, chute_correto  
+	beq $a1, $t3, chute_correto
+	
+	j chute_errado  
 	
 
 	       		       			       		       		
@@ -215,27 +213,8 @@ chute_correto:
 	         	la $a0,acertou # "Você acertou!  \\(°V°)/ \n"
 	         	syscall
 			
-	         	move $a0,$s0 #board address
-	         	jal FULL
-	         	beqz $v0,notfull
-	         	
-	         	# a prilha, para quando formos fazer uma nova pilha no ramo chute, 
-	         	# quando for ser guardada a linha que objeteve um acerto, ela já vai ser guardada atualizada
-	         	lw $s0, 0($sp) #restaura tudo para o que era
-	         	lw $s1, 4($sp) 
-	         	lw $s2, 8($sp) 
-	         	lw $ra, 12($sp)
-         		addi $sp, $sp, 16 # apaga a pilha
-	         	jr $ra # volta para o endereço de retorno que tava no início para criar uma pilha nova no mesmo endereço
-
-
-notfull:
-	         	move $a0,$s0 #board address
-	         	jal chute 
-	         	
-FULL:
-	         	move $s0,$a0 #board address
-	        	move $s1,$zero #row counter
-	        	move $s2,$zero #column counter
-	        	move $t0,$s0 #save
-	        	li $t2,9	         		       	         	
+chute_errado:
+	         	li $v0,4
+	         	la $a0,errou
+	         	syscall	         	
+      		       	         	
